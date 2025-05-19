@@ -4,9 +4,12 @@ WORKDIR /app
 COPY . .
 RUN mvn clean install -DskipTests
 
-# Now use JDK only for running the built app
+# Use a lightweight JDK to run the app
 FROM openjdk:17-jdk-slim
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Limit memory usage to prevent OOM
+ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]
+
 
